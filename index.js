@@ -4,22 +4,30 @@ let bchjs = new BCHJS();
 const SEC = 1000;
 
 async function latestBlockInfo() {
+  try {
+    let getBestBlockHash = await bchjs.Blockchain.getBestBlockHash()
+      .then(async (hash) => {
+        let data = await bchjs.Blockchain.getBlock(hash);
+        delete data.tx;
+        return data;
+      }).catch(err =>{
+        return err
+      });
+    let time = new Date();
+    console.log(time.getDate(), '/', time.getMonth(), '/', time.getFullYear(), '-', time.getHours(), ":", time.getMinutes(), ':', time.getSeconds());
+    console.log(getBestBlockHash);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function run() {
   console.clear();
+  await latestBlockInfo();
   let runApp = setInterval(async () => {
-    try {
-      let getBestBlockHash = await bchjs.Blockchain.getBestBlockHash()
-        .then(async (hash) => {
-          let data = await bchjs.Blockchain.getBlock(hash);
-          delete data.tx;
-          return data;
-        }).catch(err =>{
-          return err
-        });
-      console.log(getBestBlockHash);
-    } catch (err) {
-      console.log(err);
-    }
+    console.clear();
+    await latestBlockInfo();
   }, 60 * SEC);
 }
 
-latestBlockInfo();
+run();
