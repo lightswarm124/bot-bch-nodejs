@@ -4,6 +4,7 @@ let bchjs = new BCHJS();
 const SEC = 1000;
 
 async function latestBlockInfo() {
+  console.clear();
   let runApp = setInterval(async () => {
     try {
       let getBestBlockHash = await bchjs.Blockchain.getBestBlockHash()
