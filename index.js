@@ -14,7 +14,7 @@ async function latestBlockInfo() {
         return err
       });
     let time = new Date();
-    console.log(time.getDate(), '/', time.getMonth(), '/', time.getFullYear(), '-', time.getHours(), ":", time.getMinutes(), ':', time.getSeconds());
+    console.log(time.getDate(), '/', time.getMonth(), '/', time.getFullYear(), '-', time.getHours(), ":", time.getMinutes(), ':', time.getSeconds(), '    BCH/USD -', bchjs.Price.getBchUsd());
     console.log(getBestBlockHash);
   } catch (err) {
     console.log(err);
