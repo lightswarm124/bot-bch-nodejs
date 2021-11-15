@@ -1,0 +1,9 @@
+{
+  "name": "bot-bch-nodejs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@psf/bch-js": "^4.20.26"
+  }
+}
