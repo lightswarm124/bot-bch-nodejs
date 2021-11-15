@@ -9,6 +9,7 @@ async function latestBlockInfo() {
       .then(async (hash) => {
         let data = await bchjs.Blockchain.getBlock(hash);
         delete data.tx;
+        delete data.confirmations;
         return data;
       }).catch(err =>{
         return err
