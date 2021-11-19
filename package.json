@@ -4,6 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@psf/bch-js": "^4.20.26"
+    "@psf/bch-js": "^4.20.26",
+    "dotenv": "^10.0.0",
+    "jsonwebtoken": "^8.5.1"
   }
 }

@@ -1,38 +1,67 @@
+const jwt = require("jsonwebtoken");
 const BCHJS = require("@psf/bch-js");
 let bchjs = new BCHJS();
 
-const TOKENID = "";
-const NETWORK = "mainnet";
-
-const mnemonicWords = "";
-
-const createKeyPair = async (mnemonic) => {
-  const rootSeed = await bchjs.Mnemonic.toSeed(mnemonic);
-  const masterHDNode = bchjs.HDNode.fromSeed(rootSeed, NETWORK)
-  let address_index = 0;
-  let coin_type;
-  if (NETWORK === 'mainnet') {
-    coin_type = 245;
-  } else {
-    coin_type = 1;
-  }
-  const account = bchjs.HDNode.derivePath(masterHDNode, `m/44'/${coin_type}'/0'/0/${address_index}`);
-  const keypair = bchjs.HDNode.toKeyPair(account);
-  const cashAddr = bchjs.HDNode.toCashAddress(account);
-  const slpAddr = bchjs.SLP.Address.toSLPAddress(cashAddr);
-  return { cashAddr, slpAddr, keypair };
-}
-
-const validateTokenHolder = async () => {
-  let { cashAddr, slpAddr, keypair } = await createKeyPair(mnemonicWords, 0);
-  let tokenBalances = await bchjs.SLP.Utils.balancesForToken(TOKENID)
-    .then((res) => {
+const validateTokenHolder = async (slpAddr, tokenid) => {
+  let tokenBalances = await bchjs.SLP.Utils.balancesForToken(tokenid).then(
+    (res) => {
       return res.filter((balanceOutput) => {
         return balanceOutput.slpAddress === slpAddr;
       });
-    });
-  await console.log(tokenBalances);
-  // console.log(slpAddr);
-}
+    }
+  );
+  return tokenBalances[0];
+};
 
-validateTokenHolder();
+const signPayload = (privKeyWIF, payload = null) => {
+  if (payload === null) {
+    payload = {
+      name: "Bitcoin Bay",
+    };
+  }
+  return {
+    payload: payload,
+    signedMsg: bchjs.BitcoinCash.signMessageWithPrivKey(
+      privKeyWIF,
+      JSON.stringify(payload)
+    ),
+  };
+};
+
+const verifySignedPayload = (address, signedMsg, payload) => {
+  return bchjs.BitcoinCash.verifyMessage(
+    address,
+    signedMsg,
+    JSON.stringify(payload)
+  );
+};
+
+const createJWT = async (payload, signedMsg) => {
+  return jwt.sign(payload, signedMsg, {
+    algorithm: "HS256",
+    noTimestamp: true,
+  });
+};
+
+const verifyJWT = async (address, signedMsg, token) => {
+  let payload = jwt.decode(token);
+  let verifyMessage = verifySignedPayload(address, signedMsg, payload);
+  if (verifyMessage === true) {
+    try {
+      let cert = jwt.verify(token, signedMsg, { ignoreExpiration: true });
+      return "Validated JWT Signed & Created by Address";
+    } catch (err) {
+      return "Did not validate JWT payload data";
+    }
+  } else {
+    return "Did not validate private-key signed message";
+  }
+};
+
+module.exports = {
+  validateTokenHolder,
+  signPayload,
+  verifySignedPayload,
+  createJWT,
+  verifyJWT,
+};
