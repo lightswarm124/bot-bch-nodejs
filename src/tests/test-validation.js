@@ -1,13 +1,12 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const {
-  validateTokenHolder,
-  signPayload,
   createJWT,
   verifyJWT,
-} = require("./validate-token-owner");
-const BCHJS = require("@psf/bch-js");
-let bchjs = new BCHJS();
+  validateTokenHolder,
+  signPayload,
+} = require("../index");
+const { bchjs } = require("../utils/bch");
 
 const mnemonicWords = process.env.MNEMONIC;
 const network = process.env.NETWORK;
@@ -35,7 +34,7 @@ const createKeyPair = async (mnemonic) => {
 };
 
 const run = async () => {
-  let { cashAddr, slpAddr, privKeyWIF } = await createKeyPair(mnemonicWords, 0);
+  let { cashAddr, slpAddr, privKeyWIF } = await createKeyPair(mnemonicWords);
   let getPayloadData = await validateTokenHolder(slpAddr, tokenID);
   let getPayloadData2 = await validateTokenHolder(slpAddr, tokenID2);
   // console.log(getPayloadData);
